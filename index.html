@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h5 class="p-0 m-0">New Book</h5>
+                        <button id="close-form-button" class="btn btn-link btn-sm">Close</button>
+                    </div>
+                    <div id="new-book-form" class="card-body d-none">
+                        <form>
+                            <div class="form-group">
+                                <label for="book-name">Name</label>
+                                <input name="bookName" type="text" class="form-control" id="book-name">
+                            </div>
+                            <div class="form-group">
+                                <label for="book-author">Author</label>
+                                <input name="bookAuthor" type="text" class="form-control" id="book-author">
+                            </div>
+                            <div class="form-group">
+                                <label for="book-published">Published in</label>
+                                <input name="bookPublished" type="number" class="form-control" id="book-published">
+                            </div>
+                            <div class="custom-control custom-checkbox mb-3">
+                                <input name="bookRead" type="checkbox" class="custom-control-input" id="book-read">
+                                <label class="custom-control-label" for="book-read">Did you read it?</label>
+                            </div>
+                            <button id="add-button" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h1>Library</h1>
+        <div id="books" class="row row-cols-3"></div>
+    </div>
+    <script src="./main.js"></script>
+</body>
+</html>
