@@ -1,131 +1,149 @@
-let library = [];
+class Library {
+    constructor(wrapper) {
+        this.books = [];
+        this.booksContainer = wrapper;
+    }
 
-function addBookToLibrary(book) {
-    library.push(book);
-    localStorage.setItem('library', JSON.stringify(library));
-}
+    addBook(book) {
+        this.books.push(book);
+        localStorage.setItem('library', JSON.stringify(library));
+    }
 
-function removeBookFromLibrary(index) {
-    library.splice(index, 1);
-    localStorage.setItem('library', JSON.stringify(library));
-}
+    removeBook(index) {
+        this.books.splice(index, 1);
+        localStorage.setItem('library', JSON.stringify(library));
+    }
 
-function Book(title, author, published, didRead) {
-    this.title = title;
-    this.author = author;
-    this.published = published;
-    this.didRead = didRead;
-}
+    render() {
+        this.booksContainer.innerHTML = '';
+        this.books.forEach((book, index) => {
+            let column = document.createElement('div');
+            column.className = 'col mb-4';
 
-Book.prototype.toggleRead = function () {
-    this.didRead = !this.didRead;
-    localStorage.setItem('library', JSON.stringify(library));
-}
+            let bookCard = document.createElement('div');
+            bookCard.className = 'card';
 
-Book.prototype.render = function () {
-    let bookNode = document.createElement('div');
-    bookNode.className = 'card-body';
-    bookNode.innerHTML = `
-            <h5>${this.title}</h5>
-            <ul>
-                <li>Author: ${this.author}</li>
-                <li>Published: ${this.published}</li>
-                <li>${this.didRead ? 'did read it' : 'did not read it yet'}</li>
-            </ul>`;
-    return bookNode;
-}
+            let bookCardHeader = document.createElement('div');
+            bookCardHeader.className = 'card-header text-right';
 
-function HeaderButton(className) {
-    this.className = className;
-}
+            let removeButton = new HeaderButton('btn btn-link btn-sm').make();
+            removeButton.innerText = 'Remove';
+            removeButton.addEventListener('click', () => {
+                this.removeBook(index);
+                this.render();
+            });
 
-HeaderButton.prototype.render = function () {
-    let button = document.createElement('button');
-    button.className = this.className;
+            let readButton = new HeaderButton('btn btn-link btn-sm').make();
+            readButton.innerText = 'Mark read';
+            readButton.addEventListener('click', () => {
+                this.books[index].toggleRead();
+                this.render();
+            });
 
-    return button;
-}
+            bookCardHeader.appendChild(readButton);
+            bookCardHeader.appendChild(removeButton);
 
-function render() {
-    let booksContainer = document.querySelector('#books');
-    booksContainer.innerHTML = '';
-    library.forEach((book, index) => {
-        let column = document.createElement('div');
-        column.className = 'col mb-4';
-
-        let bookCard = document.createElement('div');
-        bookCard.className = 'card';
-
-        let bookCardHeader = document.createElement('div');
-        bookCardHeader.className = 'card-header text-right';
-
-        let removeButton = new HeaderButton('btn btn-link btn-sm').render();
-        removeButton.innerText = 'Remove';
-        removeButton.addEventListener('click', () => {
-            removeBookFromLibrary(index);
-            render();
+            bookCard.appendChild(bookCardHeader);
+            bookCard.appendChild(book.render());
+            column.appendChild(bookCard);
+            this.booksContainer.appendChild(column);
         });
+    }
+}
 
-        let readButton = new HeaderButton('btn btn-link btn-sm').render();
-        readButton.innerText = 'Mark read';
-        readButton.addEventListener('click', () => {
-            library[index].toggleRead();
-            render();
-        });
+class Book {
+    constructor(title, author, published, didRead) {
+        this.title = title;
+        this.author = author;
+        this.published = published;
+        this.didRead = didRead;
+    }
 
-        bookCardHeader.appendChild(readButton);
-        bookCardHeader.appendChild(removeButton);
+    toggleRead() {
+        this.didRead = !this.didRead;
+        localStorage.setItem('library', JSON.stringify(library));
+    }
 
-        bookCard.appendChild(bookCardHeader);
-        bookCard.appendChild(book.render());
-        column.appendChild(bookCard);
-        booksContainer.appendChild(column);
+    render () {
+        let bookNode = document.createElement('div');
+        bookNode.className = 'card-body';
+        bookNode.innerHTML = `
+                <h5>${this.title}</h5>
+                <ul>
+                    <li>Author: ${this.author}</li>
+                    <li>Published: ${this.published}</li>
+                    <li>${this.didRead ? 'did read it' : 'did not read it yet'}</li>
+                </ul>`;
+        return bookNode;
+    }
+}
+
+class HeaderButton {
+    constructor(className) {
+        this.className = className;
+    }
+
+    make () {
+        let button = document.createElement('button');
+        button.className = this.className;
+
+        return button;
+    }
+}
+
+const Form = ((wrapper, closeButton) => {
+    let isFormOpen = false;
+    const addButton = document.querySelector('#add-button');
+    const name = document.querySelector('#book-name');
+    const author = document.querySelector('#book-author');
+    const published = document.querySelector('#book-published');
+    const read = document.querySelector('#book-read');
+
+    closeButton.addEventListener('click', (event) => {
+        isFormOpen = !isFormOpen;
+        wrapper.className = isFormOpen ? 'card-body d-block' : 'card-body d-none';
+        event.target.innerText = isFormOpen ? 'Close' : 'Open';
     });
-}
 
-let closeFormButton = document.querySelector('#close-form-button');
-let isFormOpen = false;
-const form = document.querySelector('#new-book-form');
-function toggleForm(event) {
-    isFormOpen = !isFormOpen;
-    form.className = isFormOpen ? 'card-body d-block' : 'card-body d-none';
-    event.target.innerText = isFormOpen ? 'Close' : 'Open';
-}
-closeFormButton.addEventListener('click', toggleForm);
+    const resetFields = () => {
+        name.value = '';
+        author.value = '';
+        published.value = '';
+        read.checked = false;
+    }
 
-let addButton = document.querySelector('#add-button');
-let nameField = document.querySelector('#book-name');
-let authorField = document.querySelector('#book-author');
-let publishedField = document.querySelector('#book-published');
-let readField = document.querySelector('#book-read');
-addButton.addEventListener('click', (e) => {
+    return { addButton, name, author, published, read, resetFields }
+})(
+    document.querySelector('#new-book-form'),
+    document.querySelector('#close-form-button')
+);
+
+let library = new Library(document.querySelector('#books'));
+
+Form.addButton.addEventListener('click', (e) => {
     e.preventDefault();
-    addBookToLibrary(new Book(
-        nameField.value,
-        authorField.value,
-        parseInt(publishedField.value, 10),
-        readField.checked
+    library.addBook(new Book(
+        Form.name.value,
+        Form.author.value,
+        parseInt(Form.published.value, 10),
+        Form.read.checked
     ));
-    resetFields();
-    render();
+    Form.resetFields();
+    library.render();
 });
 
-function resetFields() {
-    nameField.value = '';
-    authorField.value = '';
-    publishedField.value = '';
-    readField.checked = false;
-}
+const PersistedLibrary = ((library) => {
+    const persistedLibrary = JSON.parse(localStorage.getItem('library'));
+    if (persistedLibrary !== null) {
+        persistedLibrary.books.forEach(bookObject => {
+            library.addBook(new Book(
+                bookObject.title,
+                bookObject.author,
+                bookObject.published,
+                bookObject.didRead
+            ));
+        });
+    }
+})(library);
 
-const persistedLibrary = JSON.parse(localStorage.getItem('library'));
-if (persistedLibrary !== null) {
-    persistedLibrary.forEach(bookObject => {
-        library.push(new Book(
-            bookObject.title,
-            bookObject.author,
-            bookObject.published,
-            bookObject.didRead
-        ));
-    });
-}
-render();
+library.render();
